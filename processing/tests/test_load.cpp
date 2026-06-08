@@ -4,7 +4,7 @@
 #include "RadarParser.hpp"
 
 static constexpr std::string_view DATA_DIR = RADAR_DATA_DIR;
-static const     std::string      TEST_PNG = std::string(DATA_DIR) + "1547131046353776.png";
+static const std::string TEST_PNG = std::string(DATA_DIR) + "1547131046353776.png";
 
 static void check(bool cond, const char* msg) {
     if (!cond) { std::cerr << "FAIL: " << msg << "\n"; std::exit(1); }
@@ -32,7 +32,7 @@ static void test_azimuth_count() {
     RadarScan scan;
     scan.load(TEST_PNG);
     check(static_cast<int>(scan.azimuths().size()) == RADAR_AZIMUTHS,
-          "Expected 400 azimuths");
+        "Expected 400 azimuths");
     std::cout << "PASS: azimuth count = " << scan.azimuths().size() << "\n";
 }
 
@@ -42,7 +42,7 @@ static void test_range_bin_count() {
     scan.load(TEST_PNG);
     for (int i = 0; i < RADAR_AZIMUTHS; ++i)
         check(static_cast<int>(scan.azimuths()[i].power.size()) == RADAR_RANGE_BINS,
-              "Each azimuth must have 3768 range bins");
+            "Each azimuth must have 3768 range bins");
     std::cout << "PASS: range bin count = " << RADAR_RANGE_BINS << " for all azimuths\n";
 }
 
