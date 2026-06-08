@@ -11,7 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_PREFIX_PATH "/home/theo/Qt/6.9.1/gcc_64" CACHE PATH "Qt6 installation root")
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml QuickDialogs2)
 qt_standard_project_setup()
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
@@ -42,6 +42,7 @@ target_link_libraries(RadarVisualizerGUI PRIVATE
     Qt6::Gui
     Qt6::Quick
     Qt6::Qml
+    Qt6::QuickDialogs2
 )
 
 # Tests

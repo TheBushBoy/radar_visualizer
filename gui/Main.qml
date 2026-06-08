@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import QtQuick.Dialogs
 
 Window {
     readonly property color clrBackground: "#111111"
@@ -8,6 +9,8 @@ Window {
     readonly property color clrMetrics: "#161616"
     readonly property color clrSeparator: "#2d2d2d"
     readonly property color clrText: "#aaaaaa"
+
+    property url radarFolder: ""
 
     width: 1200
     height: 800
@@ -19,18 +22,49 @@ Window {
     Rectangle {
         id: topMenu
         anchors {
-            top:   parent.top
-            left:  parent.left
+            top: parent.top
+            left: parent.left
             right: parent.right
         }
         height: 56
         color: clrSurface
 
-        Text {
-            anchors.centerIn: parent
-            text: "Buttons"
-            color: clrText
-            font.pixelSize: 14
+        // Open folder button
+        Rectangle {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                leftMargin: 16
+            }
+            width: 130
+            height: 32
+            radius: 4
+            color: openArea.containsMouse ? "#2a2a2a" : "#222222"
+            border.color: clrSeparator
+            border.width: 1
+
+            Text {
+                anchors.centerIn: parent
+                text: "Open folder"
+                color: clrText
+                font.pixelSize: 13
+            }
+
+            MouseArea {
+                id: openArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: folderDialog.open()
+            }
+        }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        title: "Select radar PNG folder"
+        onAccepted: {
+            radarFolder = selectedFolder
+            statusText.text = "Folder: " + selectedFolder
         }
     }
 
@@ -39,8 +73,8 @@ Window {
         id: footer
         anchors {
             bottom: parent.bottom
-            left:   parent.left
-            right:  parent.right
+            left: parent.left
+            right: parent.right
         }
         height: 32
         color: clrSurface
@@ -49,8 +83,8 @@ Window {
             id: statusText
             anchors {
                 verticalCenter: parent.verticalCenter
-                left:           parent.left
-                leftMargin:     16
+                left: parent.left
+                leftMargin: 16
             }
             text: "Ready."
             color: clrText
@@ -62,9 +96,9 @@ Window {
     Rectangle {
         id: ppiPanel
         anchors {
-            top:    topMenu.bottom
+            top: topMenu.bottom
             bottom: footer.top
-            left:   parent.left
+            left: parent.left
         }
         width: parent.width * 3 / 4
         color: clrPpiPanel
@@ -87,9 +121,9 @@ Window {
     Rectangle {
         id: metricsPanel
         anchors {
-            top:    topMenu.bottom
+            top: topMenu.bottom
             bottom: footer.top
-            right:  parent.right
+            right: parent.right
         }
         width: parent.width / 4
         color: clrMetrics
