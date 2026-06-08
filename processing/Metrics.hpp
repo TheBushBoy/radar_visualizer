@@ -26,7 +26,7 @@ public:
     struct Config {
         float noise_floor_max  = 0.1f;
         float min_snr_db = 10.0f;
-        int max_invalid_pct  = 10;
+        int max_invalid_pct = 10;
     };
 
     Metrics();

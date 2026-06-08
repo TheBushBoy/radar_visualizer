@@ -17,7 +17,10 @@ qt_standard_project_setup()
 set(RADAR_DATA_DIR "/home/theo/Downloads/radar-oxford/radar/" CACHE STRING "Radar dataset directory")
 
 # Radar processing library
-add_library(radar_processing STATIC processing/RadarParser.cpp)
+add_library(radar_processing STATIC
+    processing/RadarParser.cpp
+    processing/Metrics.cpp
+)
 target_include_directories(radar_processing PUBLIC processing)
 
 # Main application
