@@ -19,7 +19,6 @@ public:
 
 signals:
     void statusChanged(const QString& message);
-    void scanComplete(int count);
 
 private:
     QStringList files_;

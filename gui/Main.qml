@@ -12,6 +12,16 @@ Window {
 
     property url radarFolder: ""
 
+    onRadarFolderChanged: {
+        if (radarFolder != "")
+            backend.scanFolder(radarFolder)
+    }
+
+    Connections {
+        target: backend
+        function onStatusChanged(message) { statusText.text = message }
+    }
+
     width: 1200
     height: 800
     title: "Radar Visualizer"
@@ -64,7 +74,6 @@ Window {
         title: "Select radar PNG folder"
         onAccepted: {
             radarFolder = selectedFolder
-            statusText.text = "Folder: " + selectedFolder
         }
     }
 

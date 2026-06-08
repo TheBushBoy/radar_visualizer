@@ -31,7 +31,10 @@ target_compile_definitions(RadarVisualizer PRIVATE RADAR_DATA_DIR="${RADAR_DATA_
 target_link_libraries(RadarVisualizer PRIVATE radar_processing Qt6::Core Qt6::Gui)
 
 # GUI application
-qt_add_executable(RadarVisualizerGUI gui/main.cpp)
+qt_add_executable(RadarVisualizerGUI
+    gui/main.cpp
+    gui/RadarBackend.cpp
+)
 qt_add_qml_module(RadarVisualizerGUI
     URI App
     QML_FILES gui/Main.qml
