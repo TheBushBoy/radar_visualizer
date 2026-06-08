@@ -9,8 +9,12 @@ Window {
     readonly property color clrMetrics: "#161616"
     readonly property color clrSeparator: "#2d2d2d"
     readonly property color clrText: "#aaaaaa"
+    readonly property color clrBtnActive: "#2a2a2a"
+    readonly property color clrBtnInactive: "#222222"
 
     property url radarFolder: ""
+    property int scanCount: 0
+    property int currentIndex: -1
 
     onRadarFolderChanged: {
         if (radarFolder != "")
@@ -20,6 +24,11 @@ Window {
     Connections {
         target: backend
         function onStatusChanged(message) { statusText.text = message }
+        function onScanComplete(count) {
+            scanCount = count
+            currentIndex = count > 0 ? 0 : -1
+            statusText.text = "Scan complete: " + count + " files."
+        }
     }
 
     width: 1200
@@ -49,7 +58,7 @@ Window {
             width: 130
             height: 32
             radius: 4
-            color: openArea.containsMouse ? "#2a2a2a" : "#222222"
+            color: openArea.containsMouse ? clrBtnActive : clrBtnInactive
             border.color: clrSeparator
             border.width: 1
 
@@ -65,6 +74,72 @@ Window {
                 anchors.fill: parent
                 hoverEnabled: true
                 onClicked: folderDialog.open()
+            }
+        }
+
+        // Previous button
+        Rectangle {
+            id: prevBtn
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+                leftMargin: 162
+            }
+            width: 32
+            height: 32
+            radius: 4
+            property bool active: currentIndex > 0
+            color: active && prevArea.containsMouse ? clrBtnActive : clrBtnInactive
+            border.color: clrSeparator
+            border.width: 1
+            opacity: active ? 1.0 : 0.3
+
+            Text {
+                anchors.centerIn: parent
+                text: "<"
+                color: clrText
+                font.pixelSize: 14
+            }
+
+            MouseArea {
+                id: prevArea
+                anchors.fill: parent
+                hoverEnabled: true
+                enabled: prevBtn.active
+                onClicked: currentIndex--
+            }
+        }
+
+        // Next button
+        Rectangle {
+            id: nextBtn
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: prevBtn.right
+                leftMargin: 4
+            }
+            width: 32
+            height: 32
+            radius: 4
+            property bool active: currentIndex >= 0 && currentIndex < scanCount - 1
+            color: active && nextArea.containsMouse ? clrBtnActive : clrBtnInactive
+            border.color: clrSeparator
+            border.width: 1
+            opacity: active ? 1.0 : 0.3
+
+            Text {
+                anchors.centerIn: parent
+                text: ">"
+                color: clrText
+                font.pixelSize: 14
+            }
+
+            MouseArea {
+                id: nextArea
+                anchors.fill: parent
+                hoverEnabled: true
+                enabled: nextBtn.active
+                onClicked: currentIndex++
             }
         }
     }

@@ -57,7 +57,7 @@ void RadarBackend::scanFolder(const QUrl& folderUrl) {
                 emit statusChanged(
                     QString("Scanning %1 / %2...").arg(i + 1).arg(total));
         }
-        emit statusChanged(QString("Scan complete. Processed %1 files.").arg(metrics_.size()));
+        emit scanComplete(metrics_.size());
     });
     thread_->start();
 }
