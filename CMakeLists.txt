@@ -7,20 +7,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_PREFIX_PATH "/home/theo/Qt/6.9.1/gcc_64" CACHE PATH "Qt6 installation root")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui)
 qt_standard_project_setup()
 
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    processing/*.cpp
-)
+set(RADAR_DATA_DIR "/home/theo/Downloads/radar-oxford/radar/" CACHE STRING "Radar dataset directory")
 
-add_executable(RadarVisualizer ${SOURCES})
+# Radar processing library
+add_library(radar_processing STATIC processing/RadarParser.cpp)
+target_include_directories(radar_processing PUBLIC processing)
 
-target_include_directories(RadarVisualizer PRIVATE src)
+# Main application
+add_executable(RadarVisualizer processing/main.cpp)
+target_compile_definitions(RadarVisualizer PRIVATE RADAR_DATA_DIR="${RADAR_DATA_DIR}")
+target_link_libraries(RadarVisualizer PRIVATE radar_processing Qt6::Core Qt6::Gui)
 
-target_link_libraries(RadarVisualizer PRIVATE
-    Qt6::Core
-    Qt6::Gui
-)
+# Tests
+enable_testing()
+add_subdirectory(processing/tests)

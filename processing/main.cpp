@@ -3,7 +3,7 @@
 
 #include "RadarParser.hpp"
 
-static constexpr std::string_view DATA_DIR = "/home/theo/Downloads/radar-oxford/radar/";
+static constexpr std::string_view DATA_DIR = RADAR_DATA_DIR;
 
 int main(int argc, char *argv[]) {
     RadarScan scan;
