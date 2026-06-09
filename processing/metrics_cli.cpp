@@ -22,10 +22,15 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<fs::path> pngs;
-    for (const auto& entry : fs::directory_iterator(dir))
+    for (const auto& entry : fs::directory_iterator(dir)) {
         if (entry.path().extension() == ".png")
             pngs.push_back(entry.path());
+    }
     std::sort(pngs.begin(), pngs.end());
+    if (pngs.size() > 100) {
+        std::fprintf(stderr, "Warning: %zu PNG files found, only processing first 100\n", pngs.size());
+        pngs.resize(100);
+    }
 
     if (pngs.empty()) {
         std::fprintf(stderr, "Error: no PNG files in %s\n", argv[1]);
