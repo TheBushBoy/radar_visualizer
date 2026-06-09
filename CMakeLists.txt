@@ -25,22 +25,16 @@ add_library(radar_processing STATIC
 )
 target_include_directories(radar_processing PUBLIC processing)
 
-# Main application
-add_executable(RadarVisualizer processing/main.cpp)
-target_compile_definitions(RadarVisualizer PRIVATE RADAR_DATA_DIR="${RADAR_DATA_DIR}")
-target_link_libraries(RadarVisualizer PRIVATE radar_processing Qt6::Core Qt6::Gui)
-
-# GUI application
-qt_add_executable(RadarVisualizerGUI
+qt_add_executable(RadarVisualizer
     gui/main.cpp
     gui/RadarBackend.cpp
     gui/PpiProvider.cpp
 )
-qt_add_qml_module(RadarVisualizerGUI
+qt_add_qml_module(RadarVisualizer
     URI App
     QML_FILES gui/Main.qml
 )
-target_link_libraries(RadarVisualizerGUI PRIVATE
+target_link_libraries(RadarVisualizer PRIVATE
     radar_processing
     Qt6::Core
     Qt6::Gui
