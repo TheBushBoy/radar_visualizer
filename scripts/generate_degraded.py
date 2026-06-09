@@ -12,6 +12,7 @@ AZIMUTHS = 400
 META_COLS = 11
 RANGE_BINS = 3768
 PNG_COLS = 3779
+VALID_FLAG_COL = 10
 DEFAULT_DATA_DIR = "/home/theo/Downloads/radar-oxford/radar/"
 
 
@@ -35,11 +36,20 @@ def add_noise(img: np.ndarray, offset: int = 60) -> np.ndarray:
     return out
 
 
+def mark_invalid(img: np.ndarray, pct: float = 10) -> np.ndarray:
+    """Mark a percentage of azimuths as interpolated."""
+    out = img.copy()
+    n = int(AZIMUTHS * pct / 100)
+    rows = np.random.choice(AZIMUTHS, n, replace=False)
+    out[rows, VALID_FLAG_COL] = 0
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", default=DEFAULT_DATA_DIR,
                         help="Directory with original radar PNGs")
-    parser.add_argument("--output-dir", default=DEFAULT_DATA_DIR + "noisy/",
+    parser.add_argument("--output-dir", default=DEFAULT_DATA_DIR + "degraded/",
                         help="Directory to write degraded PNGs")
     args = parser.parse_args()
 
@@ -53,9 +63,10 @@ def main() -> int:
         return 1
 
     for i, src in enumerate(pngs):
-        out_path = out_dir / f"{src.stem}_noisy{src.suffix}"
-        save_scan(add_noise(load_scan(src)), out_path)
-        print(f"[{i+1}/{len(pngs)}] {out_path.name}", end="\r")
+        ref = load_scan(src)
+        save_scan(add_noise(ref), out_dir / f"{src.stem}_noisy{src.suffix}")
+        save_scan(mark_invalid(ref), out_dir / f"{src.stem}_invalid{src.suffix}")
+        print(f"[{i+1}/{len(pngs)}] {src.name}", end="\r")
 
     print(f"\n{len(pngs)} files written to {out_dir}")
     return 0
