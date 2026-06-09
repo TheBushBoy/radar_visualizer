@@ -60,6 +60,13 @@ Window {
     visible: true
     color: clrBackground
 
+    Item {
+        anchors.fill: parent
+        focus: true
+        Keys.onLeftPressed: if (currentIndex > 0) currentIndex--
+        Keys.onRightPressed: if (currentIndex < scanCount - 1) currentIndex++
+    }
+
     // Top menu
     Rectangle {
         id: topMenu
@@ -219,11 +226,26 @@ Window {
         Image {
             id: ppiImage
             anchors.centerIn: parent
-            width: Math.min(parent.width, parent.height) - 20
+            width: Math.min(parent.width, parent.height) - 48
             height: width
             fillMode: Image.PreserveAspectFit
             cache: false
             source: ""
+        }
+
+        Repeater {
+            model: [0, 45, 90, 135, 180, 225, 270, 315]
+            delegate: Text {
+                property real rad: modelData * Math.PI / 180
+                property real r: ppiImage.width / 2 + 16
+                x: ppiPanel.width / 2 + r * Math.sin(rad) - width / 2
+                y: ppiPanel.height / 2 - r * Math.cos(rad) - height / 2
+                text: modelData + "°"
+                color: clrText
+                font.pixelSize: 10
+                opacity: 0.5
+                visible: currentIndex !== -1
+            }
         }
 
         Text {

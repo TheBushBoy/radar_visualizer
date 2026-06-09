@@ -10,8 +10,8 @@ PpiProvider::PpiProvider()
 }
 
 void PpiProvider::render(const RadarScan& scan) {
-    QImage img(IMAGE_SIZE, IMAGE_SIZE, QImage::Format_Grayscale8);
-    img.fill(0);
+    QImage img(IMAGE_SIZE, IMAGE_SIZE, QImage::Format_ARGB32);
+    img.fill(0); // transparent
 
     const auto& azimuths = scan.azimuths();
     const int nAz = static_cast<int>(azimuths.size());
@@ -21,7 +21,7 @@ void PpiProvider::render(const RadarScan& scan) {
     const float maxR = IMAGE_SIZE / 2.0f - 1.0f;
 
     for (int py = 0; py < IMAGE_SIZE; ++py) {
-        uchar* line = img.scanLine(py);
+        QRgb* line = reinterpret_cast<QRgb*>(img.scanLine(py));
         for (int px = 0; px < IMAGE_SIZE; ++px) {
             float dx = px - cx;
             float dy = py - cy;
@@ -37,8 +37,8 @@ void PpiProvider::render(const RadarScan& scan) {
             if (azIdx >= nAz) azIdx = nAz - 1;
 
             // sqrt to lift weak returns above black
-            float power = std::sqrt(azimuths[azIdx].power[rangeIdx]);
-            line[px] = static_cast<uchar>(power * 255.0f);
+            uchar gray = static_cast<uchar>(std::sqrt(azimuths[azIdx].power[rangeIdx]) * 255.0f);
+            line[px] = qRgba(gray, gray, gray, 255);
         }
     }
 
