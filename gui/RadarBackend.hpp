@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QThread>
 #include <QUrl>
+#include <QVariantMap>
 #include <QWaitCondition>
 #include <memory>
 
@@ -24,6 +25,7 @@ public:
     Q_INVOKABLE void navigate(int index);
     Q_INVOKABLE bool hasScan(int index);
     Q_INVOKABLE QString fileName(int index) const;
+    Q_INVOKABLE QVariantMap metricsAt(int index);
 
     const QStringList& files() const { return files_; }
 

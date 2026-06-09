@@ -15,9 +15,16 @@ Window {
     property url radarFolder: ""
     property int scanCount: 0
     property int currentIndex: -1
+    property var currentMetrics: ({})
 
-    function scanLabel(index) {
-        return "Scan " + (index + 1) + " / " + scanCount + "  —  " + backend.fileName(index)
+    function updateCurrent(index) {
+        if (backend.hasScan(index)) {
+            currentMetrics = backend.metricsAt(index)
+            statusText.text = "Scan " + (index + 1) + " / " + scanCount + "  —  " + backend.fileName(index)
+        } else {
+            currentMetrics = {}
+            statusText.text = "Loading..."
+        }
     }
 
     onRadarFolderChanged: {
@@ -28,7 +35,7 @@ Window {
     onCurrentIndexChanged: {
         if (currentIndex >= 0) {
             backend.navigate(currentIndex)
-            statusText.text = backend.hasScan(currentIndex) ? scanLabel(currentIndex) : "Loading..."
+            updateCurrent(currentIndex)
         }
     }
 
@@ -42,7 +49,7 @@ Window {
         }
         function onScanCached(index) {
             if (index === currentIndex)
-                statusText.text = scanLabel(index)
+                updateCurrent(index)
         }
     }
 
@@ -227,11 +234,101 @@ Window {
         width: parent.width / 4
         color: clrMetrics
 
-        Text {
-            anchors.centerIn: parent
-            text: "Metrics"
-            color: clrText
-            font.pixelSize: 22
+        Column {
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                margins: 16
+            }
+            spacing: 10
+
+            Text {
+                text: "METRICS"
+                color: clrText
+                font.pixelSize: 10
+                opacity: 0.4
+            }
+
+            Rectangle { width: parent.width; height: 1; color: clrSeparator }
+
+            // Metric row helper
+            component MetricRow: Row {
+                property string label: ""
+                property string value: "—"
+                width: parent.width
+                spacing: 0
+                Text {
+                    width: parent.parent.width * 0.6
+                    text: label
+                    color: clrText
+                    font.pixelSize: 12
+                    opacity: 0.6
+                }
+                Text {
+                    text: value
+                    color: clrText
+                    font.pixelSize: 12
+                }
+            }
+
+            MetricRow {
+                label: "Noise floor"
+                value: currentMetrics.meanNoiseFloor !== undefined
+                    ? currentMetrics.meanNoiseFloor.toFixed(4) : "—"
+            }
+            MetricRow {
+                label: "Mean SNR"
+                value: currentMetrics.meanSnrDb !== undefined
+                    ? currentMetrics.meanSnrDb.toFixed(1) + " dB" : "—"
+            }
+            MetricRow {
+                label: "Invalid az."
+                value: currentMetrics.invalidAzimuths !== undefined
+                    ? currentMetrics.invalidAzimuths : "—"
+            }
+
+            Rectangle { width: parent.width; height: 1; color: clrSeparator }
+
+            Text {
+                text: "ANOMALIES"
+                color: clrText
+                font.pixelSize: 10
+                opacity: 0.4
+            }
+
+            // Anomaly row helper
+            component AnomalyRow: Row {
+                property string label: ""
+                property bool triggered: false
+                width: parent.width
+                spacing: 0
+                Text {
+                    width: parent.parent.width * 0.6
+                    text: label
+                    color: clrText
+                    font.pixelSize: 12
+                    opacity: 0.6
+                }
+                Text {
+                    text: triggered ? "!" : "OK"
+                    color: triggered ? "#cc4444" : "#558855"
+                    font.pixelSize: 12
+                }
+            }
+
+            AnomalyRow {
+                label: "Noise"
+                triggered: currentMetrics.anomalyNoise === true
+            }
+            AnomalyRow {
+                label: "SNR"
+                triggered: currentMetrics.anomalySnr === true
+            }
+            AnomalyRow {
+                label: "Invalid az."
+                triggered: currentMetrics.anomalyInvalid === true
+            }
         }
     }
 }

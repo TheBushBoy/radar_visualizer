@@ -13,7 +13,6 @@ struct ScanMetrics {
     std::vector<AzimuthMetrics> per_azimuth;
     float mean_noise_floor;
     float mean_snr_db;
-    int total_detections;
     int invalid_azimuths; // interpolated
     bool anomaly_noise; // noise floor > 3 times expected
     bool anomaly_snr; // mean SNR below threshold

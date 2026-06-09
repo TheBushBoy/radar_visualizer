@@ -150,3 +150,18 @@ QString RadarBackend::fileName(int index) const {
         return {};
     return QFileInfo(files_[index]).fileName();
 }
+
+QVariantMap RadarBackend::metricsAt(int index) {
+    QMutexLocker lock(&cacheMutex_);
+    if (!scanCache_.contains(index))
+        return {};
+    const ScanMetrics& m = scanCache_[index].metrics;
+    return {
+        {"meanNoiseFloor", m.mean_noise_floor},
+        {"meanSnrDb", m.mean_snr_db},
+        {"invalidAzimuths", m.invalid_azimuths},
+        {"anomalyNoise", m.anomaly_noise},
+        {"anomalySnr", m.anomaly_snr},
+        {"anomalyInvalid", m.anomaly_invalid}
+    };
+}
