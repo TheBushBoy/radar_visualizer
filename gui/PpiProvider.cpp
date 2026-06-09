@@ -5,7 +5,7 @@ static constexpr float PI = 3.14159265358979f;
 
 PpiProvider::PpiProvider()
     : QQuickImageProvider(QQuickImageProvider::Image) {
-    image_ = QImage(IMAGE_SIZE, IMAGE_SIZE, QImage::Format_Grayscale8);
+    image_ = QImage(IMAGE_SIZE, IMAGE_SIZE, QImage::Format_ARGB32);
     image_.fill(0);
 }
 
