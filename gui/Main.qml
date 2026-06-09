@@ -45,7 +45,10 @@ Window {
         function onStatusChanged(message) { statusText.text = message }
         function onFolderReady(count) {
             scanCount = count
-            currentIndex = count > 0 ? 0 : -1
+            ppiImage.source = ""
+            currentIndex = -1
+            if (count > 0)
+                currentIndex = 0
             statusText.text = "Found " + count + " files."
         }
         function onScanCached(index) {
@@ -173,7 +176,6 @@ Window {
             }
         }
 
-        // Separator
         Rectangle {
             anchors {
                 verticalCenter: parent.verticalCenter
