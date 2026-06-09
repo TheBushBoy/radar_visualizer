@@ -43,18 +43,25 @@ def main():
     parser.add_argument("--binary", default="./build/metrics_cli")
     parser.add_argument("--data-dir", required=True)
     parser.add_argument("--tolerance", type=float, default=5.0)
+    parser.add_argument("--json", action="store_true", help="Output results as JSON")
     args = parser.parse_args()
 
     if not REFERENCE_FILE.exists():
-        sys.exit(f"ERROR: no reference file. Run valid_reference.py first.")
+        sys.exit("ERROR: no reference file. Run valid_reference.py first.")
 
     output = run(Path(args.binary), Path(args.data_dir), args.tolerance)
     results = output["results"]
     passed = sum(1 for r in results.values() if r["pass"])
     total = len(results)
-    for metric, r in results.items():
-        print(f"  [{'PASS' if r['pass'] else 'FAIL'}] {metric:<26} ref={r['ref']:.4f} cur={r['cur']:.4f} delta={r['delta_pct']:.1f}%")
-    print(f"\n{passed}/{total} passed")
+
+    if args.json:
+        print(json.dumps({"passed": passed, "total": total,
+                          "overall": passed == total, "metrics": results}))
+    else:
+        for metric, r in results.items():
+            print(f"  [{'PASS' if r['pass'] else 'FAIL'}] {metric:<26} ref={r['ref']:.4f} cur={r['cur']:.4f} delta={r['delta_pct']:.1f}%")
+        print(f"\n{passed}/{total} passed")
+
     if passed < total:
         sys.exit(1)
 

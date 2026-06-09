@@ -16,6 +16,16 @@ Window {
     property int scanCount: 0
     property int currentIndex: -1
     property var currentMetrics: ({})
+    property var nonRegResult: null
+
+    function nrLabel(key) {
+        return ({"mean_noise_floor":      "Noise floor",
+                 "mean_snr_db":           "Mean SNR",
+                 "mean_invalid_azimuths": "Invalid az.",
+                 "anomaly_noise_pct":     "Anom. noise",
+                 "anomaly_snr_pct":       "Anom. SNR",
+                 "anomaly_invalid_pct":   "Anom. invalid"})[key] || key
+    }
 
     function updateCurrent(index) {
         if (backend.hasScan(index)) {
@@ -43,6 +53,7 @@ Window {
     Connections {
         target: backend
         function onStatusChanged(message) { statusText.text = message }
+        function onNonRegressionDone(result) { nonRegResult = result }
         function onFolderReady(count) {
             scanCount = count
             ppiImage.source = ""
@@ -445,6 +456,66 @@ Window {
                 label: "Invalid az."
                 triggered: currentMetrics.anomalyInvalid === true
             }
+
+            Rectangle { width: parent.width; height: 1; color: clrSeparator }
+
+            Text {
+                text: "NON-REGRESSION"
+                color: clrText
+                font.pixelSize: 10
+                opacity: 0.4
+            }
+
+            // Summary
+            Text {
+                visible: nonRegResult !== null
+                text: nonRegResult ? (nonRegResult.passed + "/" + nonRegResult.total + " passed") : ""
+                color: nonRegResult && nonRegResult.overall ? "#558855" : "#cc4444"
+                font.pixelSize: 12
+                font.bold: true
+            }
+            Text {
+                visible: nonRegResult === null
+                text: "—"
+                color: clrText
+                font.pixelSize: 12
+                opacity: 0.3
+            }
+
+            // Per-metric rows
+            component NrRow: Row {
+                property string key: ""
+                property var d: nonRegResult && nonRegResult.metrics ? nonRegResult.metrics[key] : null
+                visible: nonRegResult !== null
+                width: parent.width
+                spacing: 0
+                Text {
+                    width: parent.parent.width * 0.55
+                    text: nrLabel(parent.key)
+                    color: clrText
+                    font.pixelSize: 11
+                    opacity: 0.6
+                }
+                Text {
+                    width: parent.parent.width * 0.25
+                    text: parent.d ? ("+" + parent.d.delta_pct.toFixed(1) + "%") : ""
+                    color: clrText
+                    font.pixelSize: 11
+                    opacity: 0.5
+                }
+                Text {
+                    text: parent.d ? (parent.d.pass ? "OK" : "FAIL") : ""
+                    color: parent.d ? (parent.d.pass ? "#558855" : "#cc4444") : clrText
+                    font.pixelSize: 11
+                }
+            }
+
+            NrRow { key: "mean_noise_floor" }
+            NrRow { key: "mean_snr_db" }
+            NrRow { key: "mean_invalid_azimuths" }
+            NrRow { key: "anomaly_noise_pct" }
+            NrRow { key: "anomaly_snr_pct" }
+            NrRow { key: "anomaly_invalid_pct" }
         }
     }
 }

@@ -37,6 +37,7 @@ signals:
     void statusChanged(const QString& message);
     void folderReady(int count);
     void scanCached(int index);
+    void nonRegressionDone(const QVariantMap& result);
 
 private:
     struct CachedScan {

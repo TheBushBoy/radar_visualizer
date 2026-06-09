@@ -2,6 +2,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QProcess>
 
 RadarBackend::RadarBackend(PpiProvider* ppi, QObject* parent) : QObject(parent), ppi_(ppi) {
@@ -195,12 +197,16 @@ void RadarBackend::runNonRegression() {
     emit statusChanged("Running non-regression...");
     auto* proc = new QProcess(this);
     connect(proc, &QProcess::finished, this, [this, proc](int code, QProcess::ExitStatus) {
-        QString out = proc->readAllStandardOutput().trimmed();
-        emit statusChanged(code == 0 ? "Non-regression OK — " + out.split('\n').last()
-            : "Non-regression FAILED — " + out.split('\n').last());
+        QJsonDocument doc = QJsonDocument::fromJson(proc->readAllStandardOutput());
+        if (!doc.isNull()) {
+            emit nonRegressionDone(doc.object().toVariantMap());
+            emit statusChanged(code == 0 ? "Non-regression OK" : "Non-regression FAILED");
+        } else {
+            emit statusChanged("Non-regression error: " + proc->readAllStandardError());
+        }
         proc->deleteLater();
     });
-    proc->start(python, {script, "--binary", binary, "--data-dir", folder});
+    proc->start(python, {script, "--binary", binary, "--data-dir", folder, "--json"});
 }
 
 QVariantMap RadarBackend::metricsAt(int index) {
