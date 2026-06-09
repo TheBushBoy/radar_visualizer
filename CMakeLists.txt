@@ -43,6 +43,10 @@ target_link_libraries(RadarVisualizer PRIVATE
     Qt6::QuickDialogs2
 )
 
+# Metrics CLI
+add_executable(metrics_cli processing/metrics_cli.cpp)
+target_link_libraries(metrics_cli PRIVATE radar_processing)
+
 # Tests
 enable_testing()
 add_subdirectory(processing/tests)
