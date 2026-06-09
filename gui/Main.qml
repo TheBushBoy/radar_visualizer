@@ -16,18 +16,33 @@ Window {
     property int scanCount: 0
     property int currentIndex: -1
 
+    function scanLabel(index) {
+        return "Scan " + (index + 1) + " / " + scanCount + "  —  " + backend.fileName(index)
+    }
+
     onRadarFolderChanged: {
         if (radarFolder != "")
-            backend.scanFolder(radarFolder)
+            backend.openFolder(radarFolder)
+    }
+
+    onCurrentIndexChanged: {
+        if (currentIndex >= 0) {
+            backend.navigate(currentIndex)
+            statusText.text = backend.hasScan(currentIndex) ? scanLabel(currentIndex) : "Loading..."
+        }
     }
 
     Connections {
         target: backend
         function onStatusChanged(message) { statusText.text = message }
-        function onScanComplete(count) {
+        function onFolderReady(count) {
             scanCount = count
             currentIndex = count > 0 ? 0 : -1
-            statusText.text = "Scan complete: " + count + " files."
+            statusText.text = "Found " + count + " files."
+        }
+        function onScanCached(index) {
+            if (index === currentIndex)
+                statusText.text = scanLabel(index)
         }
     }
 

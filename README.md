@@ -28,9 +28,9 @@ The processing module is a standalone static library with no dependency on Qt. I
 
 The GUI is a Qt6/QML application built on top of the processing library. It is split into a C++ backend and a QML front-end:
 
-- `RadarBackend`, when `scanFolder()` is called it lists all PNG files in the chosen directory, then launches a background `QThread` that loads each file, computes its metrics, and emits progress signals to update the UI without blocking it.
+- `RadarBackend`, when `openFolder()` is called it lists all PNG files instantly, then a persistent worker thread loads scans on demand. Navigation updates a sliding window cache of `WIDTH_OF_PRESCAN` scans on each side of the current index, out-of-window entries are evicted, missing ones are queued in priority order, current index first, then forward before backward. Rapid navigation replaces the queue so stale work is never accumulated.
 
-- `Main.qml`, defines the window layout: a top bar with an *Open folder* button, a left panel for the PPI display, a right panel for metrics, and a footer that shows live scan progress. Selecting a folder via the native dialog automatically triggers the background scan.
+- `Main.qml`, defines the window layout: a top bar with an *Open folder* button and navigation arrows, a left panel for the PPI display, a right panel for metrics, and a footer showing the current scan name or *Loading…* during fast navigation.
 
 ## Build & Test
 
