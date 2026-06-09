@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Generate degraded radar PNG files for testing."""
 
 import argparse
