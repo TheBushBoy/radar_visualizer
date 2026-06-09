@@ -101,6 +101,14 @@ void RadarBackend::rebuildQueue(int center, const QStringList& files) {
 }
 
 void RadarBackend::openFolder(const QUrl& folderUrl) {
+    QString path = folderUrl.toLocalFile();
+    QStringList names = QDir(path).entryList({"*.png"}, QDir::Files, QDir::Name);
+
+    if (names.isEmpty()) {
+        emit statusChanged("No PNG files found in the selected folder.");
+        return;
+    }
+
     {
         QMutexLocker lock(&queueMutex_);
         loadQueue_.clear();
@@ -110,17 +118,9 @@ void RadarBackend::openFolder(const QUrl& folderUrl) {
         scanCache_.clear();
     }
 
-    QString path = folderUrl.toLocalFile();
-    QStringList names = QDir(path).entryList({"*.png"}, QDir::Files, QDir::Name);
-
     files_.clear();
     for (const QString& name : names)
         files_.append(path + "/" + name);
-
-    if (files_.isEmpty()) {
-        emit statusChanged("No PNG files found in the selected folder.");
-        return;
-    }
 
     emit folderReady(files_.size());
 }
