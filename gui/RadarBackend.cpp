@@ -49,6 +49,8 @@ void RadarBackend::startWorker() {
                     scanCache_.insert(idx, std::move(cs));
                 }
                 emit scanCached(idx);
+            } else if (idx == navigatingTo_.load()) {
+                emit statusChanged(QString::fromStdString(cs.scan->error()));
             }
         }
     });
