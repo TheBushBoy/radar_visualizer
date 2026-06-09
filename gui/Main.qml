@@ -20,6 +20,7 @@ Window {
     function updateCurrent(index) {
         if (backend.hasScan(index)) {
             currentMetrics = backend.metricsAt(index)
+            ppiImage.source = "image://ppi/" + index
             statusText.text = "Scan " + (index + 1) + " / " + scanCount + "  —  " + backend.fileName(index)
         } else {
             currentMetrics = {}
@@ -215,11 +216,23 @@ Window {
             color: clrSeparator
         }
 
+        Image {
+            id: ppiImage
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) - 20
+            height: width
+            fillMode: Image.PreserveAspectFit
+            cache: false
+            source: ""
+        }
+
         Text {
             anchors.centerIn: parent
-            text: "PPI Display"
+            text: "Radar Visualizer"
             color: clrText
             font.pixelSize: 22
+            opacity: 0.3
+            visible: currentIndex === -1
         }
     }
 

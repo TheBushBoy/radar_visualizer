@@ -2,7 +2,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-RadarBackend::RadarBackend(QObject* parent) : QObject(parent) {
+RadarBackend::RadarBackend(PpiProvider* ppi, QObject* parent) : QObject(parent), ppi_(ppi) {
     startWorker();
 }
 
@@ -40,11 +40,14 @@ void RadarBackend::startWorker() {
             cs.scan = std::make_shared<RadarScan>();
             if (cs.scan->load(files[idx].toStdString())) {
                 cs.metrics = calc.compute(*cs.scan);
+
+                // render PPI for the current index
+                if (idx == navigatingTo_.load())
+                    ppi_->render(*cs.scan);
                 {
                     QMutexLocker lock(&cacheMutex_);
                     scanCache_.insert(idx, std::move(cs));
                 }
-
                 emit scanCached(idx);
             }
         }
@@ -135,6 +138,14 @@ void RadarBackend::navigate(int index) {
         for (int k : keys)
             if (k < lo || k > hi)
                 scanCache_.remove(k);
+    }
+
+    navigatingTo_.store(index);
+
+    {
+        QMutexLocker lock(&cacheMutex_);
+        if (scanCache_.contains(index))
+            ppi_->render(*scanCache_[index].scan);
     }
 
     rebuildQueue(index, files_);

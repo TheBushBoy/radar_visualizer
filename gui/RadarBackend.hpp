@@ -7,9 +7,11 @@
 #include <QUrl>
 #include <QVariantMap>
 #include <QWaitCondition>
+#include <atomic>
 #include <memory>
 
 #include "Metrics.hpp"
+#include "PpiProvider.hpp"
 #include "RadarParser.hpp"
 
 class RadarBackend : public QObject {
@@ -18,7 +20,7 @@ public:
     // Number of scans preloaded before and after the current index
     static constexpr int WIDTH_OF_PRESCAN = 10;
 
-    explicit RadarBackend(QObject* parent = nullptr);
+    explicit RadarBackend(PpiProvider* ppi, QObject* parent = nullptr);
     ~RadarBackend();
 
     Q_INVOKABLE void openFolder(const QUrl& folderUrl);
@@ -43,6 +45,9 @@ private:
     void startWorker();
     void stopWorker();
     void rebuildQueue(int center, const QStringList& files);
+
+    PpiProvider* ppi_;
+    std::atomic<int> navigatingTo_{-1}; // index to render PPI for
 
     QStringList files_;
 

@@ -1,14 +1,18 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+
+#include "PpiProvider.hpp"
 #include "RadarBackend.hpp"
 
 int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
 
-    RadarBackend backend;
+    auto* ppi = new PpiProvider();
+    RadarBackend backend(ppi);
 
     QQmlApplicationEngine engine;
+    engine.addImageProvider("ppi", ppi);
     engine.rootContext()->setContextProperty("backend", &backend);
     engine.loadFromModule("App", "Main");
 

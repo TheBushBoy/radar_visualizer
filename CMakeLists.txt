@@ -34,6 +34,7 @@ target_link_libraries(RadarVisualizer PRIVATE radar_processing Qt6::Core Qt6::Gu
 qt_add_executable(RadarVisualizerGUI
     gui/main.cpp
     gui/RadarBackend.cpp
+    gui/PpiProvider.cpp
 )
 qt_add_qml_module(RadarVisualizerGUI
     URI App
