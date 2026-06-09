@@ -172,6 +172,85 @@ Window {
                 onClicked: currentIndex++
             }
         }
+
+        // Separator
+        Rectangle {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: nextBtn.right
+                leftMargin: 16
+            }
+            width: 1
+            height: 24
+            color: clrSeparator
+            id: navSeparator
+        }
+
+        // Record reference button
+        Rectangle {
+            id: recordBtn
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: navSeparator.right
+                leftMargin: 16
+            }
+            width: 110
+            height: 32
+            radius: 4
+            property bool active: scanCount > 0
+            color: active && recordArea.containsMouse ? clrBtnActive : clrBtnInactive
+            border.color: clrSeparator
+            border.width: 1
+            opacity: active ? 1.0 : 0.3
+
+            Text {
+                anchors.centerIn: parent
+                text: "Record ref."
+                color: clrText
+                font.pixelSize: 13
+            }
+
+            MouseArea {
+                id: recordArea
+                anchors.fill: parent
+                hoverEnabled: true
+                enabled: recordBtn.active
+                onClicked: backend.recordReference()
+            }
+        }
+
+        // Non-regression button
+        Rectangle {
+            id: nonRegBtn
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: recordBtn.right
+                leftMargin: 8
+            }
+            width: 130
+            height: 32
+            radius: 4
+            property bool active: scanCount > 0
+            color: active && nonRegArea.containsMouse ? clrBtnActive : clrBtnInactive
+            border.color: clrSeparator
+            border.width: 1
+            opacity: active ? 1.0 : 0.3
+
+            Text {
+                anchors.centerIn: parent
+                text: "Non-regression"
+                color: clrText
+                font.pixelSize: 13
+            }
+
+            MouseArea {
+                id: nonRegArea
+                anchors.fill: parent
+                hoverEnabled: true
+                enabled: nonRegBtn.active
+                onClicked: backend.runNonRegression()
+            }
+        }
     }
 
     FolderDialog {

@@ -28,6 +28,8 @@ public:
     Q_INVOKABLE bool hasScan(int index);
     Q_INVOKABLE QString fileName(int index) const;
     Q_INVOKABLE QVariantMap metricsAt(int index);
+    Q_INVOKABLE void recordReference();
+    Q_INVOKABLE void runNonRegression();
 
     const QStringList& files() const { return files_; }
 

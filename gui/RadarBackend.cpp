@@ -1,6 +1,8 @@
 #include "RadarBackend.hpp"
+#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QProcess>
 
 RadarBackend::RadarBackend(PpiProvider* ppi, QObject* parent) : QObject(parent), ppi_(ppi) {
     startWorker();
@@ -162,6 +164,43 @@ QString RadarBackend::fileName(int index) const {
     if (index < 0 || index >= files_.size())
         return {};
     return QFileInfo(files_[index]).fileName();
+}
+
+void RadarBackend::recordReference() {
+    if (files_.isEmpty()) return;
+    QString folder = QFileInfo(files_.first()).absolutePath();
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString python = appDir + "/../scripts/.venv/bin/python3";
+    QString script = appDir + "/../scripts/valid_reference.py";
+    QString binary = appDir + "/metrics_cli";
+
+    emit statusChanged("Recording reference...");
+    auto* proc = new QProcess(this);
+    connect(proc, &QProcess::finished, this, [this, proc](int code, QProcess::ExitStatus) {
+        emit statusChanged(code == 0 ? "Reference recorded."
+            : "Record failed: " + proc->readAllStandardError());
+        proc->deleteLater();
+    });
+    proc->start(python, {script, "--binary", binary, "--data-dir", folder});
+}
+
+void RadarBackend::runNonRegression() {
+    if (files_.isEmpty()) return;
+    QString folder = QFileInfo(files_.first()).absolutePath();
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString python = appDir + "/../scripts/.venv/bin/python3";
+    QString script = appDir + "/../scripts/test_non_regression.py";
+    QString binary = appDir + "/metrics_cli";
+
+    emit statusChanged("Running non-regression...");
+    auto* proc = new QProcess(this);
+    connect(proc, &QProcess::finished, this, [this, proc](int code, QProcess::ExitStatus) {
+        QString out = proc->readAllStandardOutput().trimmed();
+        emit statusChanged(code == 0 ? "Non-regression OK — " + out.split('\n').last()
+            : "Non-regression FAILED — " + out.split('\n').last());
+        proc->deleteLater();
+    });
+    proc->start(python, {script, "--binary", binary, "--data-dir", folder});
 }
 
 QVariantMap RadarBackend::metricsAt(int index) {
