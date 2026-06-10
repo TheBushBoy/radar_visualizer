@@ -74,6 +74,8 @@ Window {
 
     width: 1200
     height: 800
+    minimumWidth: 800
+    minimumHeight: 600
     title: "Radar Visualizer"
     visible: true
     color: clrBackground
