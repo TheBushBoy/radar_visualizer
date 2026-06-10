@@ -47,9 +47,9 @@ def mark_invalid(img: np.ndarray, pct: float = 10) -> np.ndarray:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", default=DEFAULT_DATA_DIR,
-                        help="Directory with original radar PNGs")
+        help="Directory with original radar PNGs")
     parser.add_argument("--output-dir", default=DEFAULT_DATA_DIR + "degraded/",
-                        help="Directory to write degraded PNGs")
+        help="Directory to write degraded PNGs")
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir)

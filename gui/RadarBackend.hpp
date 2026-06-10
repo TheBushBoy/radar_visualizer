@@ -28,6 +28,7 @@ public:
     Q_INVOKABLE bool hasScan(int index);
     Q_INVOKABLE QString fileName(int index) const;
     Q_INVOKABLE QVariantMap metricsAt(int index);
+    Q_INVOKABLE QString stereoPath(int index) const;
     Q_INVOKABLE void recordReference();
     Q_INVOKABLE void runNonRegression();
 
@@ -53,6 +54,7 @@ private:
     std::atomic<int> navigatingTo_{-1}; // index to render PPI for
 
     QStringList files_;
+    QStringList stereoFiles_; // sorted by timestamp filename
 
     QHash<int, CachedScan> scanCache_;
     QMutex cacheMutex_; // mutex on scanCache_

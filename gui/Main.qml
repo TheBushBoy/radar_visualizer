@@ -17,23 +17,26 @@ Window {
     property int currentIndex: -1
     property var currentMetrics: ({})
     property var nonRegResult: null
+    property string currentStereoPath: ""
 
     function nrLabel(key) {
-        return ({"mean_noise_floor":      "Noise floor",
-                 "mean_snr_db":           "Mean SNR",
-                 "mean_invalid_azimuths": "Invalid az.",
-                 "anomaly_noise_pct":     "Anom. noise",
-                 "anomaly_snr_pct":       "Anom. SNR",
-                 "anomaly_invalid_pct":   "Anom. invalid"})[key] || key
+        return ({"mean_noise_floor": "Noise floor",
+            "mean_snr_db": "Mean SNR",
+            "mean_invalid_azimuths": "Invalid az.",
+            "anomaly_noise_pct": "Anom. noise",
+            "anomaly_snr_pct": "Anom. SNR",
+            "anomaly_invalid_pct": "Anom. invalid"})[key] || key
     }
 
     function updateCurrent(index) {
         if (backend.hasScan(index)) {
             currentMetrics = backend.metricsAt(index)
+            currentStereoPath = backend.stereoPath(index)
             ppiImage.source = "image://ppi/" + index
             statusText.text = "Scan " + (index + 1) + " / " + scanCount + "  —  " + backend.fileName(index)
         } else {
             currentMetrics = {}
+            currentStereoPath = ""
             statusText.text = "Loading..."
         }
     }
@@ -57,6 +60,7 @@ Window {
         function onFolderReady(count) {
             scanCount = count
             ppiImage.source = ""
+            currentStereoPath = ""
             currentIndex = -1
             if (count > 0)
                 currentIndex = 0
@@ -361,7 +365,44 @@ Window {
         width: parent.width / 4
         color: clrMetrics
 
+        // Stereo camera image
+        Rectangle {
+            id: stereoSection
+            anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
+            height: parent.width
+            color: "#0d0d0d"
+
+            Rectangle {
+                anchors { top: parent.top; left: parent.left; right: parent.right }
+                height: 1
+                color: clrSeparator
+            }
+
+            Image {
+                anchors.fill: parent
+                fillMode: Image.PreserveAspectFit
+                source: currentStereoPath !== "" ? ("file://" + currentStereoPath) : ""
+                cache: false
+            }
+
+            Text {
+                anchors.centerIn: parent
+                visible: currentStereoPath === ""
+                text: "No preview image"
+                color: clrText
+                font.pixelSize: 11
+                opacity: 0.2
+            }
+        }
+
+        // Right pannel area
+        Flickable {
+            anchors { top: parent.top; left: parent.left; right: parent.right; bottom: stereoSection.top }
+            contentHeight: metricsColumn.implicitHeight
+            clip: true
+
         Column {
+            id: metricsColumn
             anchors {
                 top: parent.top
                 left: parent.left
@@ -517,5 +558,6 @@ Window {
             NrRow { key: "anomaly_snr_pct" }
             NrRow { key: "anomaly_invalid_pct" }
         }
+        } // Flickable
     }
 }

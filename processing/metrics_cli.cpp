@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
         RadarScan scan;
         if (!scan.load(png.string())) {
             std::fprintf(stderr, "Error loading %s: %s\n",
-                         png.filename().c_str(), scan.error().c_str());
+                png.filename().c_str(), scan.error().c_str());
             return 1;
         }
         ScanMetrics r = m.compute(scan);

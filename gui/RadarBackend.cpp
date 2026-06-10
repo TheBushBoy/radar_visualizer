@@ -128,6 +128,14 @@ void RadarBackend::openFolder(const QUrl& folderUrl) {
     for (const QString& name : names)
         files_.append(path + "/" + name);
 
+    stereoFiles_.clear();
+    QDir stereoDir(QDir(path).absoluteFilePath("../stereo"));
+    if (stereoDir.exists()) {
+        const QStringList stereoNames = stereoDir.entryList({"*.png"}, QDir::Files, QDir::Name);
+        for (const QString& name : stereoNames)
+            stereoFiles_.append(stereoDir.absolutePath() + "/" + name);
+    }
+
     emit folderReady(files_.size());
 }
 
@@ -166,6 +174,31 @@ QString RadarBackend::fileName(int index) const {
     if (index < 0 || index >= files_.size())
         return {};
     return QFileInfo(files_[index]).fileName();
+}
+
+QString RadarBackend::stereoPath(int index) const {
+    if (index < 0 || index >= files_.size() || stereoFiles_.isEmpty())
+        return {};
+    bool ok;
+    qint64 radarTs = QFileInfo(files_[index]).baseName().split('_').first().toLongLong(&ok);
+    if (!ok) return {};
+
+    // search for closest stereo timestamp
+    int lo = 0, hi = (int)stereoFiles_.size() - 1;
+    while (lo < hi) {
+        int mid = (lo + hi) / 2;
+        if (QFileInfo(stereoFiles_[mid]).baseName().toLongLong() < radarTs)
+            lo = mid + 1;
+        else
+            hi = mid;
+    }
+    if (lo > 0) {
+        qint64 prev = QFileInfo(stereoFiles_[lo - 1]).baseName().toLongLong();
+        qint64 cur  = QFileInfo(stereoFiles_[lo]).baseName().toLongLong();
+        if (qAbs(prev - radarTs) < qAbs(cur - radarTs))
+            return stereoFiles_[lo - 1];
+    }
+    return stereoFiles_[lo];
 }
 
 void RadarBackend::recordReference() {
