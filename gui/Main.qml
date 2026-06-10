@@ -356,7 +356,7 @@ Window {
         }
     }
 
-    // Metrics panel
+    // Metrics and stereo panel
     Rectangle {
         id: metricsPanel
         anchors {
@@ -397,20 +397,18 @@ Window {
             }
         }
 
-        // Right pannel area
+        // Metrics pannel area
         Flickable {
             anchors { top: parent.top; left: parent.left; right: parent.right; bottom: stereoSection.top }
-            contentHeight: metricsColumn.implicitHeight
+            contentHeight: metricsColumn.height + 32
+            contentWidth: width
             clip: true
 
         Column {
             id: metricsColumn
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-                margins: 16
-            }
+            x: 16
+            y: 16
+            width: parent.width - 32
             spacing: 10
 
             Text {
